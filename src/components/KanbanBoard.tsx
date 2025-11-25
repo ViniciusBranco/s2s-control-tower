@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     DndContext,
     DragOverlay,
@@ -37,6 +37,11 @@ export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects
     const [activeId, setActiveId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
+    const [localTasks, setLocalTasks] = useState<Task[]>(tasks);
+
+    useEffect(() => {
+        setLocalTasks(tasks);
+    }, [tasks]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -97,15 +102,18 @@ export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
-        setActiveId(null);
         const { active, over } = event;
+
+        // Clear activeId immediately to remove overlay, but we need it for logic
+        // Actually, dnd-kit recommends keeping it until animation done, but for optimistic UI:
+        setActiveId(null);
 
         if (!over) return;
 
         const activeId = active.id as string;
         const overId = over.id as string;
 
-        const activeTask = tasks.find((t) => t.id === activeId);
+        const activeTask = localTasks.find((t) => t.id === activeId);
         if (!activeTask) return;
 
         let newStatus: Status = activeTask.status;
@@ -113,16 +121,29 @@ export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects
         if (Object.keys(COLUMN_LABELS).includes(overId)) {
             newStatus = overId as Status;
         } else {
-            const overTask = tasks.find((t) => t.id === overId);
+            const overTask = localTasks.find((t) => t.id === overId);
             if (overTask) {
                 newStatus = overTask.status;
             }
         }
 
         if (activeTask.status !== newStatus) {
+            // Optimistic Update
+            setLocalTasks((prev) =>
+                prev.map((t) => (t.id === activeId ? { ...t, status: newStatus } : t))
+            );
+
             // Update Firestore
-            const taskRef = doc(db, "tasks", activeId);
-            await updateDoc(taskRef, { status: newStatus });
+            try {
+                const taskRef = doc(db, "tasks", activeId);
+                await updateDoc(taskRef, { status: newStatus });
+            } catch (error) {
+                console.error("Failed to update task status:", error);
+                // Revert on error (optional, but good practice)
+                setLocalTasks((prev) =>
+                    prev.map((t) => (t.id === activeId ? { ...t, status: activeTask.status } : t))
+                );
+            }
         }
     };
 
@@ -186,7 +207,7 @@ export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects
                                 <Column
                                     key={colId}
                                     id={colId}
-                                    tasks={sortTasks(tasks.filter((t) => t.status === colId))}
+                                    tasks={sortTasks(localTasks.filter((t) => t.status === colId))}
                                     onDeleteTask={handleDeleteTask}
                                     onEditTask={handleEditTask}
                                 />
