@@ -1,6 +1,7 @@
 import type { User } from "firebase/auth";
-import { LogOut, LayoutGrid, Plus } from "lucide-react";
+import { LogOut, LayoutGrid, Plus, ShieldAlert } from "lucide-react";
 import { type Task, PROJECTS } from "../types";
+import { seedDatabase } from "../lib/seed";
 
 interface SidebarProps {
     user: User;
@@ -53,6 +54,20 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask }: SidebarProps) {
                     <Plus size={18} />
                     Nova Tarefa
                 </button>
+
+                {user && user.email === import.meta.env.VITE_ADMIN_EMAIL && (
+                    <button
+                        onClick={() => {
+                            if (confirm("Isso vai apagar dados existentes e recriar os iniciais. Continuar?")) {
+                                seedDatabase();
+                            }
+                        }}
+                        className="w-full mt-3 py-2 px-4 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-xl font-medium text-sm transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <ShieldAlert size={18} />
+                        Seed Database
+                    </button>
+                )}
             </div>
 
             {/* Projects Progress */}

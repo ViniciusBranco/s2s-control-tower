@@ -1,8 +1,21 @@
-import { collection, writeBatch, doc } from "firebase/firestore";
-import { db } from "./firebase";
+import { collection, writeBatch, doc, getDocs, query } from "firebase/firestore";
+import { db, auth } from "./firebase";
 
 export const seedDatabase = async () => {
+    if (!auth.currentUser) {
+        alert("Please sign in to seed the database");
+        return;
+    }
+
     const batch = writeBatch(db);
+    const tasksRef = collection(db, "tasks");
+
+    // Step A: Delete all existing documents
+    const q = query(tasksRef);
+    const snapshot = await getDocs(q);
+    snapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+    });
 
     const tasks = [
         // Tintas Marfim
@@ -38,12 +51,14 @@ export const seedDatabase = async () => {
         { title: "Configuração de ambiente Python/Jupyter", status: "todo", priority: "medium", projectId: "vita-ai" },
     ];
 
+    // Step B: Add new tasks
     tasks.forEach((task) => {
-        const taskRef = doc(collection(db, "tasks"));
+        const taskRef = doc(tasksRef);
         batch.set(taskRef, {
             ...task,
             createdAt: new Date().toISOString(),
-            assignee: "https://i.pravatar.cc/150?u=" + Math.random(), // Random avatar
+            assignee: auth.currentUser?.photoURL,
+            userId: auth.currentUser?.uid,
         });
     });
 

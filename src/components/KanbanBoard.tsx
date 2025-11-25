@@ -14,8 +14,6 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { collection, onSnapshot, query, doc, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { seedDatabase } from "../lib/seed";
-import { Database } from "lucide-react";
 import type { Task, Status } from "../types";
 import { COLUMN_LABELS } from "../types";
 import { Column } from "./Column";
@@ -135,7 +133,8 @@ export function KanbanBoard({ user, onSignOut }: KanbanBoardProps) {
             await addDoc(collection(db, "tasks"), {
                 ...taskData,
                 createdAt: new Date().toISOString(),
-                assignee: "https://i.pravatar.cc/150?u=" + Math.random(),
+                assignee: user.photoURL,
+                userId: user.uid,
             });
         }
     };
@@ -167,19 +166,6 @@ export function KanbanBoard({ user, onSignOut }: KanbanBoardProps) {
 
             {/* Board Area */}
             <div className="flex-1 flex flex-col h-full overflow-hidden">
-                <div className="p-4 flex justify-end">
-                    <button
-                        onClick={() => {
-                            if (confirm("Isso vai apagar dados existentes e recriar os iniciais. Continuar?")) {
-                                seedDatabase();
-                            }
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 bg-purple-100 rounded-md hover:bg-purple-200 transition-colors cursor-pointer"
-                    >
-                        <Database className="w-4 h-4" />
-                        Seed Database
-                    </button>
-                </div>
                 <div className="flex-1 overflow-x-auto overflow-y-hidden p-6">
                     <DndContext
                         sensors={sensors}
