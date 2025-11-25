@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Task } from "../types";
 import { PROJECTS, PRIORITY_COLORS, PROJECT_COLORS } from "../types";
-import { Trash2, Edit2, Calendar } from "lucide-react";
+import { Trash2, Edit2, Calendar, Clock, AlertCircle } from "lucide-react";
 
 interface TaskCardProps {
     task: Task;
@@ -34,6 +34,19 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
     const project = PROJECTS.find((p) => p.id === task.projectId);
     const projectColorClass = project ? PROJECT_COLORS[project.color as keyof typeof PROJECT_COLORS] : "bg-gray-100 text-gray-800 border-gray-200";
 
+    const getTaskAgeStatus = (dateString: string) => {
+        if (task.status === 'done') return { status: 'normal', days: 0 };
+
+        const taskDate = new Date(dateString);
+        const today = new Date();
+        const diffTime = Math.abs(today.getTime() - taskDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 30) return { status: 'critical', days: diffDays };
+        if (diffDays > 14) return { status: 'warning', days: diffDays };
+        return { status: 'normal', days: diffDays };
+    };
+
     if (isDragging) {
         return (
             <div
@@ -43,6 +56,8 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
             />
         );
     }
+
+    const ageInfo = task.date ? getTaskAgeStatus(task.date) : { status: 'normal', days: 0 };
 
     return (
         <div
@@ -90,8 +105,28 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
                         {task.priority.toUpperCase()}
                     </span>
                     {task.date && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <Calendar size={12} />
+                        <div
+                            className={`flex items-center gap-1 text-xs ${ageInfo.status === 'critical'
+                                    ? 'text-red-700 font-bold bg-red-50 px-2 py-1 rounded-md border border-red-100'
+                                    : ageInfo.status === 'warning'
+                                        ? 'text-amber-600 font-medium'
+                                        : 'text-gray-500'
+                                }`}
+                            title={
+                                ageInfo.status === 'critical'
+                                    ? `CRÍTICO: Tarefa aberta há ${ageInfo.days} dias`
+                                    : ageInfo.status === 'warning'
+                                        ? `Tarefa aberta há ${ageInfo.days} dias`
+                                        : undefined
+                            }
+                        >
+                            {ageInfo.status === 'critical' ? (
+                                <AlertCircle size={12} />
+                            ) : ageInfo.status === 'warning' ? (
+                                <Clock size={12} />
+                            ) : (
+                                <Calendar size={12} />
+                            )}
                             <span>{new Date(task.date).toLocaleDateString('pt-BR')}</span>
                         </div>
                     )}

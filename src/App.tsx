@@ -54,9 +54,10 @@ function App() {
     );
   };
 
-  const filteredTasks = selectedProjects.length === 0
+  const filteredTasks = (selectedProjects.length === 0
     ? tasks
-    : tasks.filter((t) => selectedProjects.includes(t.projectId));
+    : tasks.filter((t) => selectedProjects.includes(t.projectId))
+  ).filter(t => !t.isArchived);
 
   if (loading) {
     return (

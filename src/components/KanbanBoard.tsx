@@ -12,7 +12,7 @@ import {
     type DragEndEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { collection, doc, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
+import { collection, doc, updateDoc, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import type { Task, Status } from "../types";
 import { COLUMN_LABELS } from "../types";
@@ -31,6 +31,8 @@ interface KanbanBoardProps {
     onToggleProject: (id: string) => void;
 }
 
+import { PROJECTS } from "../types";
+
 export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects, onToggleProject }: KanbanBoardProps) {
     const [activeId, setActiveId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,6 +48,23 @@ export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
+
+    const sortTasks = (tasks: Task[]) => {
+        return [...tasks].sort((a, b) => {
+            const projectA = PROJECTS.find(p => p.id === a.projectId)?.name || "";
+            const projectB = PROJECTS.find(p => p.id === b.projectId)?.name || "";
+
+            const projectComparison = projectA.localeCompare(projectB);
+            if (projectComparison !== 0) return projectComparison;
+
+            // Secondary: Date Ascending
+            // Missing date = newest (bottom), so use MAX_SAFE_INTEGER
+            const dateA = a.date ? new Date(a.date).getTime() : Number.MAX_SAFE_INTEGER;
+            const dateB = b.date ? new Date(b.date).getTime() : Number.MAX_SAFE_INTEGER;
+
+            return dateA - dateB;
+        });
+    };
 
     const handleDragStart = (event: DragStartEvent) => {
         setActiveId(event.active.id as string);
@@ -125,8 +144,9 @@ export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects
     };
 
     const handleDeleteTask = async (id: string) => {
-        if (confirm("Are you sure you want to delete this task?")) {
-            await deleteDoc(doc(db, "tasks", id));
+        if (confirm("Deseja arquivar esta tarefa? Você poderá restaurá-la no menu Arquivo.")) {
+            const taskRef = doc(db, "tasks", id);
+            await updateDoc(taskRef, { isArchived: true });
         }
     };
 
@@ -166,7 +186,7 @@ export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects
                                 <Column
                                     key={colId}
                                     id={colId}
-                                    tasks={tasks.filter((t) => t.status === colId)}
+                                    tasks={sortTasks(tasks.filter((t) => t.status === colId))}
                                     onDeleteTask={handleDeleteTask}
                                     onEditTask={handleEditTask}
                                 />

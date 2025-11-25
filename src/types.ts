@@ -17,6 +17,7 @@ export interface Task {
     assignee?: string;
     createdAt?: string;
     date?: string;
+    isArchived?: boolean;
 }
 
 export const PROJECTS: Project[] = [

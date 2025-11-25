@@ -1,7 +1,10 @@
+import { useState } from "react";
 import type { User } from "firebase/auth";
-import { LogOut, LayoutGrid, Plus, ShieldAlert } from "lucide-react";
+import { LogOut, LayoutGrid, Plus, ShieldAlert, HelpCircle, Archive } from "lucide-react";
 import { type Task, PROJECTS } from "../types";
 import { seedDatabase } from "../lib/seed";
+import { ProjectGuideModal } from "./ProjectGuideModal";
+import { ArchiveModal } from "./ArchiveModal";
 
 interface SidebarProps {
     user: User;
@@ -13,8 +16,11 @@ interface SidebarProps {
 }
 
 export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, onToggleProject }: SidebarProps) {
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
+    const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+
     const calculateProgress = (projectId: string) => {
-        const projectTasks = tasks.filter((t) => t.projectId === projectId);
+        const projectTasks = tasks.filter((t) => t.projectId === projectId && !t.isArchived);
         const total = projectTasks.length;
         if (total === 0) return 0;
         const done = projectTasks.filter((t) => t.status === "done").length;
@@ -115,9 +121,28 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
                 </div>
             </div>
 
-            {/* User Footer */}
-            <div className="p-4 border-t border-gray-100 bg-gray-50/50">
-                <div className="flex items-center justify-between">
+            {/* Footer Area */}
+            <div className="p-4 border-t border-gray-100 bg-gray-50/50 space-y-3">
+                {/* Archive Button */}
+                <button
+                    onClick={() => setIsArchiveOpen(true)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                >
+                    <Archive size={18} />
+                    <span>Arquivo</span>
+                </button>
+
+                {/* Help Button */}
+                <button
+                    onClick={() => setIsGuideOpen(true)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                >
+                    <HelpCircle size={18} />
+                    <span>Guia de Bordo</span>
+                </button>
+
+                {/* User Profile */}
+                <div className="flex items-center justify-between pt-2 border-t border-gray-200/50">
                     <div className="flex items-center gap-3">
                         {user.photoURL ? (
                             <img
@@ -150,6 +175,18 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
                     </button>
                 </div>
             </div>
+
+            <ProjectGuideModal
+                isOpen={isGuideOpen}
+                onClose={() => setIsGuideOpen(false)}
+            />
+
+            <ArchiveModal
+                isOpen={isArchiveOpen}
+                onClose={() => setIsArchiveOpen(false)}
+                tasks={tasks}
+                user={user}
+            />
         </div>
     );
 }
