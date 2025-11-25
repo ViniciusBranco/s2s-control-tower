@@ -2,13 +2,22 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Task } from "../types";
 import { PROJECTS, PRIORITY_COLORS, PROJECT_COLORS } from "../types";
-import { Trash2, Edit2, Calendar, Clock, AlertCircle } from "lucide-react";
+import { Trash2, Edit2, Calendar, Clock, AlertCircle, Bot, PawPrint, ShieldCheck, Monitor, Brain, Building2 } from "lucide-react";
 
 interface TaskCardProps {
     task: Task;
     onDelete: (id: string) => void;
     onEdit: (task: Task) => void;
 }
+
+const PROJECT_ICONS: Record<string, React.ElementType> = {
+    "tintas-marfim": Bot,
+    "equihealth": PawPrint,
+    "openpower-back": ShieldCheck,
+    "openpower-front": Monitor,
+    "vita-ai": Brain,
+    "amae": Building2,
+};
 
 export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
     const {
@@ -33,6 +42,7 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
 
     const project = PROJECTS.find((p) => p.id === task.projectId);
     const projectColorClass = project ? PROJECT_COLORS[project.color as keyof typeof PROJECT_COLORS] : "bg-gray-100 text-gray-800 border-gray-200";
+    const ProjectIcon = project ? PROJECT_ICONS[project.id] : null;
 
     const getTaskAgeStatus = (dateString: string) => {
         if (task.status === 'done') return { status: 'normal', days: 0 };
@@ -68,7 +78,8 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
             className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow group cursor-grab active:cursor-grabbing"
         >
             <div className="flex justify-between items-start mb-2">
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${projectColorClass}`}>
+                <span className={`flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full border ${projectColorClass}`}>
+                    {ProjectIcon && <ProjectIcon size={12} strokeWidth={2.5} />}
                     {project?.name || "Unknown Project"}
                 </span>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -107,10 +118,10 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
                     {task.date && (
                         <div
                             className={`flex items-center gap-1 text-xs ${ageInfo.status === 'critical'
-                                    ? 'text-red-700 font-bold bg-red-50 px-2 py-1 rounded-md border border-red-100'
-                                    : ageInfo.status === 'warning'
-                                        ? 'text-amber-600 font-medium'
-                                        : 'text-gray-500'
+                                ? 'text-red-700 font-bold bg-red-50 px-2 py-1 rounded-md border border-red-100'
+                                : ageInfo.status === 'warning'
+                                    ? 'text-amber-600 font-medium'
+                                    : 'text-gray-500'
                                 }`}
                             title={
                                 ageInfo.status === 'critical'
