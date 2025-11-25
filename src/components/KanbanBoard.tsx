@@ -14,13 +14,14 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { collection, onSnapshot, query, doc, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
-// import { seedDatabase } from "../lib/seed";
+import { seedDatabase } from "../lib/seed";
+import { Database } from "lucide-react";
 import type { Task, Status } from "../types";
 import { COLUMN_LABELS } from "../types";
 import { Column } from "./Column";
 import { TaskCard } from "./TaskCard";
 import { NewTaskModal } from "./NewTaskModal";
-import { Plus, Database, LogOut } from "lucide-react";
+import { Sidebar } from "./Sidebar";
 import type { User } from "firebase/auth";
 
 interface KanbanBoardProps {
@@ -153,88 +154,64 @@ export function KanbanBoard({ user, onSignOut }: KanbanBoardProps) {
     const columns: Status[] = ["backlog", "todo", "in-progress", "done"];
 
     return (
-        <div className="h-screen flex flex-col bg-gray-100 text-gray-900 font-sans">
-            {/* Header */}
-            <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm z-10">
-                <div className="flex items-center gap-3">
-                    <div className="bg-blue-600 p-2 rounded-lg">
-                        <Database className="text-white" size={20} />
-                    </div>
-                    <h1 className="text-xl font-bold text-gray-800 tracking-tight">
-                        My Projects Control Tower
-                    </h1>
-                </div>
-                <div className="flex gap-3 items-center">
-                    <div className="flex items-center gap-2 mr-2">
-                        {user.photoURL && (
-                            <img
-                                src={user.photoURL}
-                                alt={user.displayName || "User"}
-                                className="w-8 h-8 rounded-full border border-gray-200"
-                            />
-                        )}
-                        <span className="text-sm font-medium text-gray-700 hidden sm:block">
-                            {user.displayName}
-                        </span>
-                    </div>
-                    {/* <button
-                        onClick={seedDatabase}
-                        className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium text-sm flex items-center gap-2"
-                    >
-                        <Database size={16} />
-                        Seed Database
-                    </button> */}
-                    <button
-                        onClick={() => {
-                            setEditingTask(null);
-                            setIsModalOpen(true);
-                        }}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex items-center gap-2 shadow-sm"
-                    >
-                        <Plus size={18} />
-                        New Task
-                    </button>
-                    <button
-                        onClick={onSignOut}
-                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Sign Out"
-                    >
-                        <LogOut size={20} />
-                    </button>
-                </div>
-            </header>
+        <div className="h-screen flex flex-row bg-gray-100 text-gray-900 font-sans overflow-hidden">
+            <Sidebar
+                user={user}
+                tasks={tasks}
+                onSignOut={onSignOut}
+                onNewTask={() => {
+                    setEditingTask(null);
+                    setIsModalOpen(true);
+                }}
+            />
 
             {/* Board Area */}
-            <div className="flex-1 overflow-x-auto overflow-y-hidden p-6">
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCorners}
-                    onDragStart={handleDragStart}
-                    onDragOver={handleDragOver}
-                    onDragEnd={handleDragEnd}
-                >
-                    <div className="flex gap-6 h-full min-w-max mx-auto">
-                        {columns.map((colId) => (
-                            <Column
-                                key={colId}
-                                id={colId}
-                                tasks={tasks.filter((t) => t.status === colId)}
-                                onDeleteTask={handleDeleteTask}
-                                onEditTask={handleEditTask}
-                            />
-                        ))}
-                    </div>
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+                <div className="p-4 flex justify-end">
+                    <button
+                        onClick={() => {
+                            if (confirm("Isso vai apagar dados existentes e recriar os iniciais. Continuar?")) {
+                                seedDatabase();
+                            }
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 bg-purple-100 rounded-md hover:bg-purple-200 transition-colors cursor-pointer"
+                    >
+                        <Database className="w-4 h-4" />
+                        Seed Database
+                    </button>
+                </div>
+                <div className="flex-1 overflow-x-auto overflow-y-hidden p-6">
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCorners}
+                        onDragStart={handleDragStart}
+                        onDragOver={handleDragOver}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <div className="flex gap-6 h-full min-w-max mx-auto">
+                            {columns.map((colId) => (
+                                <Column
+                                    key={colId}
+                                    id={colId}
+                                    tasks={tasks.filter((t) => t.status === colId)}
+                                    onDeleteTask={handleDeleteTask}
+                                    onEditTask={handleEditTask}
+                                />
+                            ))}
+                        </div>
 
-                    <DragOverlay>
-                        {activeId ? (
-                            <TaskCard
-                                task={tasks.find((t) => t.id === activeId)!}
-                                onDelete={() => { }}
-                                onEdit={() => { }}
-                            />
-                        ) : null}
-                    </DragOverlay>
-                </DndContext>
+                        <DragOverlay>
+                            {activeId ? (
+                                <TaskCard
+                                    task={tasks.find((t) => t.id === activeId)!}
+                                    onDelete={() => { }}
+                                    onEdit={() => { }}
+                                />
+                            ) : null}
+                        </DragOverlay>
+                    </DndContext>
+                </div>
+
             </div>
 
             <NewTaskModal
