@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 
 const ICON_MAP: Record<string, LucideIcon> = {
     Bot, Code, Database, User, Building2, Brain, ShieldCheck, Monitor, PawPrint,
-    Globe, Smartphone, Cloud, Server, Cpu, Activity, Zap, Layers, Box
+    Globe, Smartphone, Cloud, Server, Cpu, Activity, Zap, Layers, Box, Hash,
 };
 
 export const getIconByKey = (key: string): LucideIcon => {
