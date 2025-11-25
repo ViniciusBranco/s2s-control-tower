@@ -1,0 +1,101 @@
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { Task } from "../types";
+import { PROJECTS, PRIORITY_COLORS, PROJECT_COLORS } from "../types";
+import { Trash2, Edit2 } from "lucide-react";
+
+interface TaskCardProps {
+    task: Task;
+    onDelete: (id: string) => void;
+    onEdit: (task: Task) => void;
+}
+
+export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({
+        id: task.id,
+        data: {
+            type: "Task",
+            task,
+        },
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    const project = PROJECTS.find((p) => p.id === task.projectId);
+    const projectColorClass = project ? PROJECT_COLORS[project.color as keyof typeof PROJECT_COLORS] : "bg-gray-100 text-gray-800 border-gray-200";
+
+    if (isDragging) {
+        return (
+            <div
+                ref={setNodeRef}
+                style={style}
+                className="opacity-30 bg-gray-50 p-4 rounded-lg border-2 border-dashed border-gray-400 h-[150px] w-full cursor-grab"
+            />
+        );
+    }
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow group cursor-grab active:cursor-grabbing"
+        >
+            <div className="flex justify-between items-start mb-2">
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${projectColorClass}`}>
+                    {project?.name || "Unknown Project"}
+                </span>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation(); // Prevent drag start
+                            onEdit(task);
+                        }}
+                        className="p-1 hover:bg-gray-100 rounded text-gray-500 hover:text-blue-600"
+                    >
+                        <Edit2 size={14} />
+                    </button>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(task.id);
+                        }}
+                        className="p-1 hover:bg-gray-100 rounded text-gray-500 hover:text-red-600"
+                    >
+                        <Trash2 size={14} />
+                    </button>
+                </div>
+            </div>
+
+            <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{task.title}</h3>
+
+            {task.description && (
+                <p className="text-sm text-gray-500 mb-3 line-clamp-2">{task.description}</p>
+            )}
+
+            <div className="flex justify-between items-center mt-3">
+                <span className={`text-xs font-medium px-2 py-0.5 rounded ${PRIORITY_COLORS[task.priority]}`}>
+                    {task.priority.toUpperCase()}
+                </span>
+                {task.assignee && (
+                    <img
+                        src={task.assignee}
+                        alt="Assignee"
+                        className="w-6 h-6 rounded-full border border-gray-200"
+                    />
+                )}
+            </div>
+        </div>
+    );
+}
