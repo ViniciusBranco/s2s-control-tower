@@ -14,15 +14,21 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { collection, onSnapshot, query, doc, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { seedDatabase } from "../lib/seed";
+// import { seedDatabase } from "../lib/seed";
 import type { Task, Status } from "../types";
 import { COLUMN_LABELS } from "../types";
 import { Column } from "./Column";
 import { TaskCard } from "./TaskCard";
 import { NewTaskModal } from "./NewTaskModal";
-import { Plus, Database } from "lucide-react";
+import { Plus, Database, LogOut } from "lucide-react";
+import type { User } from "firebase/auth";
 
-export function KanbanBoard() {
+interface KanbanBoardProps {
+    user: User;
+    onSignOut: () => void;
+}
+
+export function KanbanBoard({ user, onSignOut }: KanbanBoardProps) {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -158,7 +164,19 @@ export function KanbanBoard() {
                         My Projects Control Tower
                     </h1>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 items-center">
+                    <div className="flex items-center gap-2 mr-2">
+                        {user.photoURL && (
+                            <img
+                                src={user.photoURL}
+                                alt={user.displayName || "User"}
+                                className="w-8 h-8 rounded-full border border-gray-200"
+                            />
+                        )}
+                        <span className="text-sm font-medium text-gray-700 hidden sm:block">
+                            {user.displayName}
+                        </span>
+                    </div>
                     {/* <button
                         onClick={seedDatabase}
                         className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium text-sm flex items-center gap-2"
@@ -175,6 +193,13 @@ export function KanbanBoard() {
                     >
                         <Plus size={18} />
                         New Task
+                    </button>
+                    <button
+                        onClick={onSignOut}
+                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Sign Out"
+                    >
+                        <LogOut size={20} />
                     </button>
                 </div>
             </header>
