@@ -16,6 +16,7 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
     const [priority, setPriority] = useState<Priority>("medium");
     const [status, setStatus] = useState<Status>("todo");
     const [projectId, setProjectId] = useState(PROJECTS[0].id);
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
     useEffect(() => {
         if (editingTask) {
@@ -24,6 +25,7 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
             setPriority(editingTask.priority);
             setStatus(editingTask.status);
             setProjectId(editingTask.projectId);
+            setDate(editingTask.date || new Date().toISOString().split('T')[0]);
         } else {
             // Reset form
             setTitle("");
@@ -31,6 +33,7 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
             setPriority("medium");
             setStatus("todo");
             setProjectId(PROJECTS[0].id);
+            setDate(new Date().toISOString().split('T')[0]);
         }
     }, [editingTask, isOpen]);
 
@@ -44,6 +47,7 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
             priority,
             status,
             projectId,
+            date,
         });
         onClose();
     };
@@ -100,6 +104,18 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
                         </div>
 
                         <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                            <input
+                                type="date"
+                                value={date}
+                                onChange={(e) => setDate(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                             <select
                                 value={priority}
@@ -112,20 +128,20 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
                                 <option value="critical">Critical</option>
                             </select>
                         </div>
-                    </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select
-                            value={status}
-                            onChange={(e) => setStatus(e.target.value as Status)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                        >
-                            <option value="backlog">Backlog</option>
-                            <option value="todo">To Do</option>
-                            <option value="in-progress">In Progress</option>
-                            <option value="done">Done</option>
-                        </select>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value as Status)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            >
+                                <option value="backlog">Backlog</option>
+                                <option value="todo">To Do</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="done">Done</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">

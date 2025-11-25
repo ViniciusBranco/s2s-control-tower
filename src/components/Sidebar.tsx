@@ -8,9 +8,11 @@ interface SidebarProps {
     tasks: Task[];
     onSignOut: () => void;
     onNewTask: () => void;
+    selectedProjects: string[];
+    onToggleProject: (id: string) => void;
 }
 
-export function Sidebar({ user, tasks, onSignOut, onNewTask }: SidebarProps) {
+export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, onToggleProject }: SidebarProps) {
     const calculateProgress = (projectId: string) => {
         const projectTasks = tasks.filter((t) => t.projectId === projectId);
         const total = projectTasks.length;
@@ -76,13 +78,25 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask }: SidebarProps) {
                     Progresso Geral
                 </h3>
 
-                <div className="space-y-6">
+                <div className="space-y-4">
                     {PROJECTS.map((project) => {
                         const progress = calculateProgress(project.id);
+                        const isSelected = selectedProjects.includes(project.id);
+
                         return (
-                            <div key={project.id}>
+                            <div
+                                key={project.id}
+                                onClick={() => onToggleProject(project.id)}
+                                className={`
+                                    cursor-pointer p-3 rounded-xl transition-all duration-200 border
+                                    ${isSelected
+                                        ? "bg-blue-50 border-blue-200 shadow-sm ring-1 ring-blue-200"
+                                        : "bg-transparent border-transparent hover:bg-gray-50 hover:border-gray-100"
+                                    }
+                                `}
+                            >
                                 <div className="flex justify-between items-center mb-2">
-                                    <span className="text-sm font-medium text-gray-700">
+                                    <span className={`text-sm font-medium ${isSelected ? "text-blue-800" : "text-gray-700"}`}>
                                         {project.name}
                                     </span>
                                     <span className="text-xs font-semibold text-gray-500">

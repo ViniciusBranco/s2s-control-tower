@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
     DndContext,
     DragOverlay,
@@ -12,7 +12,7 @@ import {
     type DragEndEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { collection, onSnapshot, query, doc, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
+import { collection, doc, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import type { Task, Status } from "../types";
 import { COLUMN_LABELS } from "../types";
@@ -25,10 +25,13 @@ import type { User } from "firebase/auth";
 interface KanbanBoardProps {
     user: User;
     onSignOut: () => void;
+    tasks: Task[];
+    allTasks: Task[];
+    selectedProjects: string[];
+    onToggleProject: (id: string) => void;
 }
 
-export function KanbanBoard({ user, onSignOut }: KanbanBoardProps) {
-    const [tasks, setTasks] = useState<Task[]>([]);
+export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects, onToggleProject }: KanbanBoardProps) {
     const [activeId, setActiveId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -43,19 +46,6 @@ export function KanbanBoard({ user, onSignOut }: KanbanBoardProps) {
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
-
-    useEffect(() => {
-        const q = query(collection(db, "tasks"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const tasksData = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as Task[];
-            setTasks(tasksData);
-        });
-
-        return () => unsubscribe();
-    }, []);
 
     const handleDragStart = (event: DragStartEvent) => {
         setActiveId(event.active.id as string);
@@ -111,11 +101,6 @@ export function KanbanBoard({ user, onSignOut }: KanbanBoardProps) {
         }
 
         if (activeTask.status !== newStatus) {
-            // Optimistic update
-            setTasks((prev) =>
-                prev.map((t) => (t.id === activeId ? { ...t, status: newStatus } : t))
-            );
-
             // Update Firestore
             const taskRef = doc(db, "tasks", activeId);
             await updateDoc(taskRef, { status: newStatus });
@@ -133,7 +118,7 @@ export function KanbanBoard({ user, onSignOut }: KanbanBoardProps) {
             await addDoc(collection(db, "tasks"), {
                 ...taskData,
                 createdAt: new Date().toISOString(),
-                assignee: user.photoURL,
+                assignee: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || "User")}&background=random`,
                 userId: user.uid,
             });
         }
@@ -156,12 +141,14 @@ export function KanbanBoard({ user, onSignOut }: KanbanBoardProps) {
         <div className="h-screen flex flex-row bg-gray-100 text-gray-900 font-sans overflow-hidden">
             <Sidebar
                 user={user}
-                tasks={tasks}
+                tasks={allTasks}
                 onSignOut={onSignOut}
                 onNewTask={() => {
                     setEditingTask(null);
                     setIsModalOpen(true);
                 }}
+                selectedProjects={selectedProjects}
+                onToggleProject={onToggleProject}
             />
 
             {/* Board Area */}

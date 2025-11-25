@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Task } from "../types";
 import { PROJECTS, PRIORITY_COLORS, PROJECT_COLORS } from "../types";
-import { Trash2, Edit2 } from "lucide-react";
+import { Trash2, Edit2, Calendar } from "lucide-react";
 
 interface TaskCardProps {
     task: Task;
@@ -85,16 +85,35 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
             )}
 
             <div className="flex justify-between items-center mt-3">
-                <span className={`text-xs font-medium px-2 py-0.5 rounded ${PRIORITY_COLORS[task.priority]}`}>
-                    {task.priority.toUpperCase()}
-                </span>
-                {task.assignee && (
-                    <img
-                        src={task.assignee}
-                        alt="Assignee"
-                        className="w-6 h-6 rounded-full border border-gray-200"
-                    />
-                )}
+                <div className="flex items-center gap-2">
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded ${PRIORITY_COLORS[task.priority]}`}>
+                        {task.priority.toUpperCase()}
+                    </span>
+                    {task.date && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <Calendar size={12} />
+                            <span>{new Date(task.date).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                    )}
+                </div>
+                <div className="flex items-center">
+                    {task.assignee ? (
+                        <img
+                            src={task.assignee}
+                            alt="Assignee"
+                            className="w-6 h-6 rounded-full border border-gray-200 object-cover"
+                            onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            }}
+                        />
+                    ) : null}
+                    <div className={`w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 ${task.assignee ? 'hidden' : ''}`}>
+                        <span className="text-[10px] font-medium text-gray-500">
+                            U
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     );

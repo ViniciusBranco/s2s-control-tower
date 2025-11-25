@@ -5,6 +5,9 @@ import { KanbanBoard } from "./components/KanbanBoard";
 import { Login } from "./components/Login";
 import { AccessDenied } from "./components/AccessDenied";
 import { Loader2 } from "lucide-react";
+import { collection, onSnapshot, query } from "firebase/firestore";
+import { db } from "./lib/firebase";
+import type { Task } from "./types";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -27,6 +30,34 @@ function App() {
     }
   };
 
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+
+  useEffect(() => {
+    const q = query(collection(db, "tasks"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const tasksData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Task[];
+      setTasks(tasksData);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const toggleProject = (projectId: string) => {
+    setSelectedProjects((prev) =>
+      prev.includes(projectId)
+        ? prev.filter((id) => id !== projectId)
+        : [...prev, projectId]
+    );
+  };
+
+  const filteredTasks = selectedProjects.length === 0
+    ? tasks
+    : tasks.filter((t) => selectedProjects.includes(t.projectId));
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-100">
@@ -46,7 +77,16 @@ function App() {
     return <AccessDenied userEmail={user.email} />;
   }
 
-  return <KanbanBoard user={user} onSignOut={handleSignOut} />;
+  return (
+    <KanbanBoard
+      user={user}
+      onSignOut={handleSignOut}
+      tasks={filteredTasks}
+      allTasks={tasks}
+      selectedProjects={selectedProjects}
+      onToggleProject={toggleProject}
+    />
+  );
 }
 
 export default App;

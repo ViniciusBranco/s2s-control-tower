@@ -19,36 +19,36 @@ export const seedDatabase = async () => {
 
     const tasks = [
         // Tintas Marfim
-        { title: "Implementar Stack de Observabilidade (Prometheus/Grafana/Loki)", status: "backlog", priority: "high", projectId: "tintas-marfim" },
-        { title: "Configuração de CI/CD (GitHub Actions)", status: "todo", priority: "high", projectId: "tintas-marfim" },
-        { title: "Implementar Fila de Mensagens (Celery/Redis)", status: "todo", priority: "medium", projectId: "tintas-marfim" },
-        { title: "Saneamento de Base de Dados (LID & Identidade Persistente)", status: "done", priority: "critical", projectId: "tintas-marfim" },
-        { title: "Migração para PostgreSQL Dockerizado", status: "done", priority: "high", projectId: "tintas-marfim" },
+        { title: "Implementar Stack de Observabilidade (Prometheus/Grafana/Loki)", status: "backlog", priority: "high", projectId: "tintas-marfim", date: "2025-11-25" },
+        { title: "Configuração de CI/CD (GitHub Actions)", status: "todo", priority: "high", projectId: "tintas-marfim", date: "2025-11-25" },
+        { title: "Implementar Fila de Mensagens (Celery/Redis)", status: "todo", priority: "medium", projectId: "tintas-marfim", date: "2025-11-25" },
+        { title: "Saneamento de Base de Dados (LID & Identidade Persistente)", status: "done", priority: "critical", projectId: "tintas-marfim", date: "2025-11-20" },
+        { title: "Migração para PostgreSQL Dockerizado", status: "done", priority: "high", projectId: "tintas-marfim", date: "2025-10-23" },
 
         // OpenPower Backend
-        { title: "Implementar Revogação de Consentimentos (Endpoint DELETE)", status: "todo", priority: "high", projectId: "openpower-back" },
-        { title: "Expandir Endpoints de Gestão (Admin CRUD)", status: "in-progress", priority: "medium", projectId: "openpower-back" },
-        { title: "Implementação Completa do Fluxo de Recuperação de Senha", status: "done", priority: "high", projectId: "openpower-back" },
-        { title: "Refatoração Arquitetural (SQLAlchemy/Alembic)", status: "done", priority: "critical", projectId: "openpower-back" },
+        { title: "Implementar Revogação de Consentimentos (Endpoint DELETE)", status: "todo", priority: "high", projectId: "openpower-back", date: "2025-11-25" },
+        { title: "Expandir Endpoints de Gestão (Admin CRUD)", status: "in-progress", priority: "medium", projectId: "openpower-back", date: "2025-11-25" },
+        { title: "Implementação Completa do Fluxo de Recuperação de Senha", status: "done", priority: "high", projectId: "openpower-back", date: "2025-11-22" },
+        { title: "Refatoração Arquitetural (SQLAlchemy/Alembic)", status: "done", priority: "critical", projectId: "openpower-back", date: "2025-11-19" },
 
         // OpenPower Frontend
-        { title: "Implementar Login com Google (SSO)", status: "backlog", priority: "medium", projectId: "openpower-front" },
-        { title: "Implementar Página Wallet", status: "todo", priority: "high", projectId: "openpower-front" },
-        { title: "Implementar Polling (Home/Wallet) para status de consentimento", status: "in-progress", priority: "medium", projectId: "openpower-front" },
-        { title: "Tela de Perfil Completa (Edição e Senha)", status: "done", priority: "low", projectId: "openpower-front" },
-        { title: "Refatoração UI/UX Geral (Design System)", status: "done", priority: "high", projectId: "openpower-front" },
+        { title: "Implementar Login com Google (SSO)", status: "backlog", priority: "medium", projectId: "openpower-front", date: "2025-11-25" },
+        { title: "Implementar Página Wallet", status: "todo", priority: "high", projectId: "openpower-front", date: "2025-11-25" },
+        { title: "Implementar Polling (Home/Wallet) para status de consentimento", status: "in-progress", priority: "medium", projectId: "openpower-front", date: "2025-11-25" },
+        { title: "Tela de Perfil Completa (Edição e Senha)", status: "done", priority: "low", projectId: "openpower-front", date: "2025-11-22" },
+        { title: "Refatoração UI/UX Geral (Design System)", status: "done", priority: "high", projectId: "openpower-front", date: "2025-11-21" },
 
         // EquiHealth
-        { title: "Treinamento YOLOv8 Nano (Proof of Concept)", status: "todo", priority: "critical", projectId: "equihealth" },
-        { title: "Otimização I/O Frames (Leitura de Vídeo Streamada)", status: "in-progress", priority: "high", projectId: "equihealth" },
-        { title: "Curadoria de Negativos (Baias Vazias) e Safety Mining", status: "done", priority: "medium", projectId: "equihealth" },
-        { title: "Implementação do Split Determinístico 80/20", status: "done", priority: "low", projectId: "equihealth" },
+        { title: "Treinamento YOLOv8 Nano (Proof of Concept)", status: "todo", priority: "critical", projectId: "equihealth", date: "2025-11-25" },
+        { title: "Otimização I/O Frames (Leitura de Vídeo Streamada)", status: "in-progress", priority: "high", projectId: "equihealth", date: "2025-11-25" },
+        { title: "Curadoria de Negativos (Baias Vazias) e Safety Mining", status: "done", priority: "medium", projectId: "equihealth", date: "2025-11-14" },
+        { title: "Implementação do Split Determinístico 80/20", status: "done", priority: "low", projectId: "equihealth", date: "2025-11-14" },
 
         // AMAE
-        { title: "Levantamento de requisitos funcionais", status: "todo", priority: "high", projectId: "amae" },
+        { title: "Levantamento de requisitos funcionais", status: "todo", priority: "high", projectId: "amae", date: "2025-11-25" },
 
         // Vita.AI
-        { title: "Configuração de ambiente Python/Jupyter", status: "todo", priority: "medium", projectId: "vita-ai" },
+        { title: "Configuração de ambiente Python/Jupyter", status: "todo", priority: "medium", projectId: "vita-ai", date: "2025-11-25" },
     ];
 
     // Step B: Add new tasks
@@ -57,7 +57,7 @@ export const seedDatabase = async () => {
         batch.set(taskRef, {
             ...task,
             createdAt: new Date().toISOString(),
-            assignee: auth.currentUser?.photoURL,
+            assignee: auth.currentUser?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.currentUser?.displayName || "User")}&background=random`,
             userId: auth.currentUser?.uid,
         });
     });
