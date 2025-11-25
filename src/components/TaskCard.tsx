@@ -140,8 +140,14 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
                         </div>
                     )}
                     {task.notes && (
-                        <div className="text-gray-400" title={task.notes}>
-                            <MessageSquareText size={14} />
+                        <div className="relative group/notes flex items-center">
+                            <div className="text-gray-400 cursor-help">
+                                <MessageSquareText size={14} />
+                            </div>
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/notes:block w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-50 whitespace-normal break-words pointer-events-none">
+                                {task.notes}
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                            </div>
                         </div>
                     )}
                 </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, MessageSquareText } from "lucide-react";
 import type { Task, Priority, Status } from "../types";
 import { PROJECTS } from "../types";
 
@@ -149,7 +149,10 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                            <MessageSquareText size={16} />
+                            Observações
+                        </label>
                         <textarea
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
