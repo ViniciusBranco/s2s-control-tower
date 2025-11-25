@@ -39,7 +39,7 @@ export const importFromJSON = async (file: File) => {
                 const existingDocs = existingSnapshot.docs;
 
                 const chunkArray = <T>(arr: T[], size: number): T[][] => {
-                    return Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+                    return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
                         arr.slice(i * size, i * size + size)
                     );
                 };

@@ -43,32 +43,11 @@ export function ProjectManagerModal({ isOpen, onClose, projects }: ProjectManage
                     icon: formData.icon
                 });
             } else {
-                // Generate a slug-like ID for new projects or let Firestore generate one?
-                // The prompt implies we might want custom IDs, but Firestore auto-ID is safer.
-                // However, existing logic uses string IDs like 'tintas-marfim'.
-                // Let's generate a simple slug from the name for the ID to keep consistency if possible,
-                // OR just use the doc ID. The prompt says "id: string".
-                // Let's use the doc ID for new ones, but for the 'id' field in the object, we can use the same.
-
-                // Actually, the previous seed used specific IDs. Let's try to make a slug.
-                const slug = formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                // Check if ID exists? For simplicity, let's just use setDoc with the slug if we want readable IDs,
-                // or addDoc for random IDs. Let's use setDoc with slug to maintain the style of 'tintas-marfim'.
-                // But to avoid collisions without checking, addDoc is safer. 
-                // Let's stick to addDoc and let the ID be the Firestore ID.
-
-                // Wait, the seed script used `doc(db, "projects", project.id)`.
-                // So the ID IS the document key.
-                // Let's try to use the slug as the key.
-
-                // For this implementation, I'll use `setDoc` with a slug if creating, but `addDoc` is standard.
-                // Let's use `addDoc` and let the ID be the auto-generated one.
-                // The `Project` type has an `id` field.
-
                 await addDoc(collection(db, "projects"), {
                     name: formData.name,
                     color: formData.color,
-                    icon: formData.icon
+                    icon: formData.icon,
+                    createdAt: new Date().toISOString()
                 });
             }
             resetForm();
@@ -104,8 +83,6 @@ export function ProjectManagerModal({ isOpen, onClose, projects }: ProjectManage
         setFormData({ name: "", color: "blue", icon: "Box" });
     };
 
-    const IconComponent = AVAILABLE_ICONS[formData.icon as keyof typeof AVAILABLE_ICONS] || Box;
-
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
@@ -138,11 +115,10 @@ export function ProjectManagerModal({ isOpen, onClose, projects }: ProjectManage
                                             key={color}
                                             onClick={() => setFormData({ ...formData, color })}
                                             className={`w-8 h-8 rounded-full border-2 transition-all ${formData.color === color
-                                                    ? "border-gray-900 scale-110"
-                                                    : "border-transparent hover:scale-105"
+                                                ? "border-gray-900 scale-110"
+                                                : "border-transparent hover:scale-105"
                                                 }`}
-                                            style={{ backgroundColor: `var(--color-${color}-500)` }} // This might not work with Tailwind arbitrary values directly in style without config.
-                                        // Fallback: use class names.
+                                            style={{ backgroundColor: `var(--color-${color}-500)` }}
                                         >
                                             <div className={`w-full h-full rounded-full bg-${color}-500`} />
                                         </button>
@@ -158,8 +134,8 @@ export function ProjectManagerModal({ isOpen, onClose, projects }: ProjectManage
                                             key={name}
                                             onClick={() => setFormData({ ...formData, icon: name })}
                                             className={`p-2 rounded-lg border flex items-center justify-center transition-all ${formData.icon === name
-                                                    ? "border-blue-500 bg-blue-50 text-blue-600"
-                                                    : "border-gray-200 hover:bg-gray-50 text-gray-600"
+                                                ? "border-blue-500 bg-blue-50 text-blue-600"
+                                                : "border-gray-200 hover:bg-gray-50 text-gray-600"
                                                 }`}
                                             title={name}
                                         >
