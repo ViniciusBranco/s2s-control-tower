@@ -3,6 +3,7 @@ import { onAuthStateChanged, type User, signOut } from "firebase/auth";
 import { auth } from "./lib/firebase";
 import { KanbanBoard } from "./components/KanbanBoard";
 import { Login } from "./components/Login";
+import { AccessDenied } from "./components/AccessDenied";
 import { Loader2 } from "lucide-react";
 
 function App() {
@@ -36,6 +37,13 @@ function App() {
 
   if (!user) {
     return <Login />;
+  }
+
+  const allowedEmails = import.meta.env.VITE_ALLOWED_EMAILS?.split(',').map((e: string) => e.trim()) || [];
+  const isAllowed = allowedEmails.length === 0 || (user.email && allowedEmails.includes(user.email));
+
+  if (!isAllowed) {
+    return <AccessDenied userEmail={user.email} />;
   }
 
   return <KanbanBoard user={user} onSignOut={handleSignOut} />;
