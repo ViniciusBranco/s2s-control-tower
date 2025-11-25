@@ -151,11 +151,12 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
                         </div>
                     )}
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center relative">
                     {task.assignee ? (
                         <img
                             src={task.assignee}
-                            alt="Assignee"
+                            alt="Creator"
+                            title="Criador"
                             className="w-6 h-6 rounded-full border border-gray-200 object-cover"
                             onError={(e) => {
                                 e.currentTarget.style.display = 'none';
@@ -168,6 +169,16 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
                             U
                         </span>
                     </div>
+
+                    {/* Editor Avatar (if different from creator) */}
+                    {task.updatedByAvatar && task.updatedById !== task.userId && (
+                        <img
+                            src={task.updatedByAvatar}
+                            alt={`Atualizado por: ${task.updatedBy}`}
+                            title={`Atualizado por: ${task.updatedBy}`}
+                            className="w-4 h-4 rounded-full border ring-1 ring-white object-cover absolute -bottom-1 -right-1 shadow-sm"
+                        />
+                    )}
                 </div>
             </div>
         </div>

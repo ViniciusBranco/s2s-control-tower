@@ -21,6 +21,9 @@ export interface Task {
     isArchived?: boolean;
     notes?: string;
     userId: string;
+    updatedBy?: string;
+    updatedByAvatar?: string;
+    updatedById?: string;
 }
 
 export const PROJECTS: Project[] = [

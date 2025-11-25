@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { X, MessageSquareText } from "lucide-react";
 import type { Task, Priority, Status } from "../types";
 import { PROJECTS } from "../types";
+import { auth } from "../lib/firebase";
 
 interface NewTaskModalProps {
     isOpen: boolean;
@@ -44,7 +45,8 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({
+
+        const baseTask = {
             title,
             description,
             priority,
@@ -52,7 +54,19 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
             projectId,
             date,
             notes,
-        });
+        };
+
+        // If editing, add updatedBy info
+        const taskData = editingTask
+            ? {
+                ...baseTask,
+                updatedBy: auth.currentUser?.displayName || "",
+                updatedByAvatar: auth.currentUser?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.currentUser?.displayName || "User")}&background=random`,
+                updatedById: auth.currentUser?.uid,
+            }
+            : baseTask;
+
+        onSubmit(taskData);
         onClose();
     };
 
