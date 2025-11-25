@@ -12,7 +12,7 @@ import {
     type DragEndEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { collection, doc, updateDoc, addDoc } from "firebase/firestore";
+import { collection, doc, updateDoc, addDoc, onSnapshot, query } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import type { Task, Status } from "../types";
 import { COLUMN_LABELS } from "../types";
@@ -21,27 +21,53 @@ import { TaskCard } from "./TaskCard";
 import { NewTaskModal } from "./NewTaskModal";
 import { Sidebar } from "./Sidebar";
 import type { User } from "firebase/auth";
+import { Loader2 } from "lucide-react";
 
 interface KanbanBoardProps {
     user: User;
     onSignOut: () => void;
-    tasks: Task[];
-    allTasks: Task[];
     selectedProjects: string[];
     onToggleProject: (id: string) => void;
 }
 
 import { PROJECTS } from "../types";
 
-export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects, onToggleProject }: KanbanBoardProps) {
+export function KanbanBoard({ user, onSignOut, selectedProjects, onToggleProject }: KanbanBoardProps) {
     const [activeId, setActiveId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
-    const [localTasks, setLocalTasks] = useState<Task[]>(tasks);
+
+    const [allTasks, setAllTasks] = useState<Task[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setLocalTasks(tasks);
-    }, [tasks]);
+        setLoading(true);
+        const q = query(collection(db, "tasks"));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const tasksData = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as Task[];
+            setAllTasks(tasksData);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching tasks:", error);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const filteredTasks = (selectedProjects.length === 0
+        ? allTasks
+        : allTasks.filter((t) => selectedProjects.includes(t.projectId))
+    ).filter(t => !t.isArchived);
+
+    const [localTasks, setLocalTasks] = useState<Task[]>(filteredTasks);
+
+    useEffect(() => {
+        setLocalTasks(filteredTasks);
+    }, [allTasks, selectedProjects]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -53,6 +79,14 @@ export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
+
+    if (loading) {
+        return (
+            <div className="h-screen flex items-center justify-center bg-gray-100">
+                <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+            </div>
+        );
+    }
 
     const sortTasks = (tasks: Task[]) => {
         return [...tasks].sort((a, b) => {
@@ -147,7 +181,7 @@ export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects
         }
     };
 
-    const handleCreateTask = async (taskData: Omit<Task, "id" | "createdAt" | "assignee">) => {
+    const handleCreateTask = async (taskData: Omit<Task, "id" | "createdAt" | "assignee" | "userId">) => {
         if (editingTask) {
             // Update existing
             const taskRef = doc(db, "tasks", editingTask.id);
@@ -217,7 +251,7 @@ export function KanbanBoard({ user, onSignOut, tasks, allTasks, selectedProjects
                         <DragOverlay>
                             {activeId ? (
                                 <TaskCard
-                                    task={tasks.find((t) => t.id === activeId)!}
+                                    task={allTasks.find((t) => t.id === activeId)!}
                                     onDelete={() => { }}
                                     onEdit={() => { }}
                                 />

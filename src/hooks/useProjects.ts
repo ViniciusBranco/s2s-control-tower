@@ -9,6 +9,7 @@ export function useProjects() {
     const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
+        setLoading(true);
         const q = query(collection(db, "projects"));
         const unsubscribe = onSnapshot(q,
             (snapshot) => {

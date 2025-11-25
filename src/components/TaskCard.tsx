@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Task } from "../types";
 import { PRIORITY_COLORS } from "../types";
-import { Trash2, Edit2, Calendar, Clock, AlertCircle } from "lucide-react";
+import { Trash2, Edit2, Calendar, Clock, AlertCircle, MessageSquareText } from "lucide-react";
 import { useProjects } from "../hooks/useProjects";
 import { getIconByKey } from "../lib/icons";
 
@@ -137,6 +137,11 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
                                 <Calendar size={12} />
                             )}
                             <span>{new Date(task.date).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                    )}
+                    {task.notes && (
+                        <div className="text-gray-400" title={task.notes}>
+                            <MessageSquareText size={14} />
                         </div>
                     )}
                 </div>

@@ -6,7 +6,7 @@ import { PROJECTS } from "../types";
 interface NewTaskModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (task: Omit<Task, "id" | "createdAt" | "assignee">) => void;
+    onSubmit: (task: Omit<Task, "id" | "createdAt" | "assignee" | "userId">) => void;
     editingTask?: Task | null;
 }
 
@@ -17,6 +17,7 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
     const [status, setStatus] = useState<Status>("todo");
     const [projectId, setProjectId] = useState(PROJECTS[0].id);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [notes, setNotes] = useState("");
 
     useEffect(() => {
         if (editingTask) {
@@ -26,6 +27,7 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
             setStatus(editingTask.status);
             setProjectId(editingTask.projectId);
             setDate(editingTask.date || new Date().toISOString().split('T')[0]);
+            setNotes(editingTask.notes || "");
         } else {
             // Reset form
             setTitle("");
@@ -34,6 +36,7 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
             setStatus("todo");
             setProjectId(PROJECTS[0].id);
             setDate(new Date().toISOString().split('T')[0]);
+            setNotes("");
         }
     }, [editingTask, isOpen]);
 
@@ -48,13 +51,14 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
             status,
             projectId,
             date,
+            notes,
         });
         onClose();
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center p-4 border-b border-gray-100">
                     <h2 className="text-lg font-semibold text-gray-900">
                         {editingTask ? "Edit Task" : "New Task"}
@@ -142,6 +146,16 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
                                 <option value="done">Done</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+                        <textarea
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none h-24"
+                            placeholder="Adicione observações ou comentários..."
+                        />
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">

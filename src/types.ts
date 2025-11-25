@@ -19,6 +19,8 @@ export interface Task {
     createdAt?: string;
     date?: string;
     isArchived?: boolean;
+    notes?: string;
+    userId: string;
 }
 
 export const PROJECTS: Project[] = [
