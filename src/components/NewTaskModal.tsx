@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { X, MessageSquareText } from "lucide-react";
 import type { Task, Priority, Status } from "../types";
-import { PROJECTS } from "../types";
 import { auth } from "../lib/firebase";
+import { useProjects } from "../hooks/useProjects";
 
 interface NewTaskModalProps {
     isOpen: boolean;
@@ -12,11 +12,12 @@ interface NewTaskModalProps {
 }
 
 export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTaskModalProps) {
+    const { projects } = useProjects();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [priority, setPriority] = useState<Priority>("medium");
     const [status, setStatus] = useState<Status>("todo");
-    const [projectId, setProjectId] = useState(PROJECTS[0].id);
+    const [projectId, setProjectId] = useState("");
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [notes, setNotes] = useState("");
 
@@ -35,23 +36,34 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
             setDescription("");
             setPriority("medium");
             setStatus("todo");
-            setProjectId(PROJECTS[0].id);
+            // Set default project if available and not set
+            if (projects.length > 0) {
+                setProjectId(projects[0].id);
+            }
             setDate(new Date().toISOString().split('T')[0]);
             setNotes("");
         }
-    }, [editingTask, isOpen]);
+    }, [editingTask, isOpen, projects]);
 
     if (!isOpen) return null;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Ensure projectId is set (fallback to first project if empty)
+        const finalProjectId = projectId || (projects.length > 0 ? projects[0].id : "");
+
+        if (!finalProjectId) {
+            alert("Please create a project first!");
+            return;
+        }
+
         const baseTask = {
             title,
             description,
             priority,
             status,
-            projectId,
+            projectId: finalProjectId,
             date,
             notes,
         };
@@ -113,7 +125,7 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, editingTask }: NewTask
                                 onChange={(e) => setProjectId(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             >
-                                {PROJECTS.map((p) => (
+                                {projects.map((p) => (
                                     <option key={p.id} value={p.id}>
                                         {p.name}
                                     </option>
