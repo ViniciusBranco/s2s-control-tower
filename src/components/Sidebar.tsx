@@ -1,8 +1,9 @@
 import { useState } from "react";
 import type { User } from "firebase/auth";
-import { LogOut, Plus, ShieldAlert, HelpCircle, Archive } from "lucide-react";
+import { LogOut, Plus, ShieldAlert, HelpCircle, Archive, Download, Upload } from "lucide-react";
 import { type Task, PROJECTS } from "../types";
 import { seedDatabase } from "../lib/seed";
+import { exportToJSON, importFromJSON } from "../lib/data-management";
 import { ProjectGuideModal } from "./ProjectGuideModal";
 import { ArchiveModal } from "./ArchiveModal";
 import s2sLogo from "../assets/s2slogo.png";
@@ -70,17 +71,57 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
                 </button>
 
                 {user && user.email === import.meta.env.VITE_ADMIN_EMAIL && (
-                    <button
-                        onClick={() => {
-                            if (confirm("Isso vai apagar dados existentes e recriar os iniciais. Continuar?")) {
-                                seedDatabase();
-                            }
-                        }}
-                        className="w-full mt-3 py-2 px-4 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-xl font-medium text-sm transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                        <ShieldAlert size={18} />
-                        Seed Database
-                    </button>
+                    <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                            Admin Zone
+                        </p>
+                        <button
+                            onClick={() => {
+                                if (confirm("Isso vai apagar dados existentes e recriar os iniciais. Continuar?")) {
+                                    seedDatabase();
+                                }
+                            }}
+                            className="w-full py-2 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl font-medium text-sm transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                            <ShieldAlert size={16} />
+                            Seed DB
+                        </button>
+
+                        <div className="grid grid-cols-2 gap-2">
+                            <button
+                                onClick={exportToJSON}
+                                className="w-full py-2 px-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl font-medium text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                                title="Exportar Backup"
+                            >
+                                <Download size={14} />
+                                Exportar
+                            </button>
+                            <label className="w-full py-2 px-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl font-medium text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                                <Upload size={14} />
+                                Importar
+                                <input
+                                    type="file"
+                                    accept=".json"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            if (confirm("ATENÇÃO: Importar um backup irá SUBSTITUIR TODOS os dados atuais. Deseja continuar?")) {
+                                                importFromJSON(file).then(() => {
+                                                    alert("Importação concluída com sucesso!");
+                                                    window.location.reload();
+                                                }).catch((err) => {
+                                                    alert("Erro na importação: " + err.message);
+                                                });
+                                            }
+                                            // Reset input
+                                            e.target.value = '';
+                                        }
+                                    }}
+                                />
+                            </label>
+                        </div>
+                    </div>
                 )}
             </div>
 
