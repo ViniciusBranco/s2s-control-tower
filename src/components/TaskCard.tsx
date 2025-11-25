@@ -1,8 +1,10 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Task } from "../types";
-import { PROJECTS, PRIORITY_COLORS, PROJECT_COLORS } from "../types";
-import { Trash2, Edit2, Calendar, Clock, AlertCircle, Bot, PawPrint, ShieldCheck, Monitor, Brain, Building2 } from "lucide-react";
+import { PRIORITY_COLORS } from "../types";
+import { Trash2, Edit2, Calendar, Clock, AlertCircle } from "lucide-react";
+import { useProjects } from "../hooks/useProjects";
+import { getIconByKey } from "../lib/icons";
 
 interface TaskCardProps {
     task: Task;
@@ -10,16 +12,8 @@ interface TaskCardProps {
     onEdit: (task: Task) => void;
 }
 
-const PROJECT_ICONS: Record<string, React.ElementType> = {
-    "tintas-marfim": Bot,
-    "equihealth": PawPrint,
-    "openpower-back": ShieldCheck,
-    "openpower-front": Monitor,
-    "vita-ai": Brain,
-    "amae": Building2,
-};
-
 export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
+    const { projects } = useProjects();
     const {
         attributes,
         listeners,
@@ -40,9 +34,13 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
         transition,
     };
 
-    const project = PROJECTS.find((p) => p.id === task.projectId);
-    const projectColorClass = project ? PROJECT_COLORS[project.color as keyof typeof PROJECT_COLORS] : "bg-gray-100 text-gray-800 border-gray-200";
-    const ProjectIcon = project ? PROJECT_ICONS[project.id] : null;
+    const project = projects.find((p) => p.id === task.projectId);
+
+    const dynamicColorClass = project
+        ? `bg-${project.color}-100 text-${project.color}-800 border-${project.color}-200`
+        : "bg-gray-100 text-gray-800 border-gray-200";
+
+    const ProjectIcon = project ? getIconByKey(project.icon) : null;
 
     const getTaskAgeStatus = (dateString: string) => {
         if (task.status === 'done') return { status: 'normal', days: 0 };
@@ -78,7 +76,7 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
             className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow group cursor-grab active:cursor-grabbing"
         >
             <div className="flex justify-between items-start mb-2">
-                <span className={`flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full border ${projectColorClass}`}>
+                <span className={`flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full border ${dynamicColorClass}`}>
                     {ProjectIcon && <ProjectIcon size={12} strokeWidth={2.5} />}
                     {project?.name || "Unknown Project"}
                 </span>

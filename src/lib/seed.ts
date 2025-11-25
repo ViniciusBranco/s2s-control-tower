@@ -9,12 +9,35 @@ export const seedDatabase = async () => {
 
     const batch = writeBatch(db);
     const tasksRef = collection(db, "tasks");
+    const projectsRef = collection(db, "projects");
 
-    // Step A: Delete all existing documents
-    const q = query(tasksRef);
-    const snapshot = await getDocs(q);
-    snapshot.docs.forEach((doc) => {
+    // Step A: Delete all existing documents (Tasks)
+    const tasksQuery = query(tasksRef);
+    const tasksSnapshot = await getDocs(tasksQuery);
+    tasksSnapshot.docs.forEach((doc) => {
         batch.delete(doc.ref);
+    });
+
+    // Step B: Delete all existing documents (Projects)
+    const projectsQuery = query(projectsRef);
+    const projectsSnapshot = await getDocs(projectsQuery);
+    projectsSnapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+    });
+
+    // Step C: Add Projects
+    const projects = [
+        { id: "tintas-marfim", name: "Tintas Marfim", color: "orange", icon: "Bot" },
+        { id: "openpower-back", name: "OpenPower Backend", color: "blue", icon: "ShieldCheck" },
+        { id: "openpower-front", name: "OpenPower Frontend", color: "sky", icon: "Monitor" },
+        { id: "equihealth", name: "EquiHealth", color: "green", icon: "PawPrint" },
+        { id: "amae", name: "AMAE", color: "red", icon: "Building2" },
+        { id: "vita-ai", name: "Vita.AI", color: "purple", icon: "Brain" },
+    ];
+
+    projects.forEach((project) => {
+        const projectRef = doc(db, "projects", project.id);
+        batch.set(projectRef, project);
     });
 
     const tasks = [
@@ -51,7 +74,7 @@ export const seedDatabase = async () => {
         { title: "Configuração de ambiente Python/Jupyter", status: "todo", priority: "medium", projectId: "vita-ai", date: "2025-11-25" },
     ];
 
-    // Step B: Add new tasks
+    // Step D: Add new tasks
     tasks.forEach((task) => {
         const taskRef = doc(tasksRef);
         batch.set(taskRef, {

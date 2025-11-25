@@ -1,5 +1,5 @@
-import { X, Calendar, Clock, AlertCircle, LayoutGrid, Filter, MousePointerClick, ShieldCheck, Archive } from "lucide-react";
-import { PROJECT_COLORS, PROJECTS } from "../types";
+import { X, Calendar, Clock, AlertCircle, LayoutGrid, Filter, MousePointerClick, ShieldCheck, Archive, Settings } from "lucide-react";
+import { useProjects } from "../hooks/useProjects";
 
 interface ProjectGuideModalProps {
     isOpen: boolean;
@@ -7,6 +7,8 @@ interface ProjectGuideModalProps {
 }
 
 export function ProjectGuideModal({ isOpen, onClose }: ProjectGuideModalProps) {
+    const { projects } = useProjects();
+
     if (!isOpen) return null;
 
     return (
@@ -34,9 +36,9 @@ export function ProjectGuideModal({ isOpen, onClose }: ProjectGuideModalProps) {
                             Mapa de Projetos
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {PROJECTS.map(project => (
+                            {projects.map(project => (
                                 <div key={project.id} className="flex items-center gap-3 p-2 rounded-lg border border-gray-100 bg-gray-50/50">
-                                    <div className={`w-3 h-3 rounded-full ${PROJECT_COLORS[project.color].split(' ')[0].replace('bg-', 'bg-').replace('-100', '-500')}`} />
+                                    <div className={`w-3 h-3 rounded-full bg-${project.color}-500`} />
                                     <span className="text-sm font-medium text-gray-700">{project.name}</span>
                                 </div>
                             ))}
@@ -89,6 +91,15 @@ export function ProjectGuideModal({ isOpen, onClose }: ProjectGuideModalProps) {
                             Funcionalidades
                         </h3>
                         <div className="space-y-3">
+                            <div className="flex items-start gap-3">
+                                <div className="p-1.5 bg-blue-100 text-blue-600 rounded-md mt-0.5">
+                                    <Settings size={14} />
+                                </div>
+                                <div>
+                                    <span className="text-sm font-medium text-gray-900 block">Gerenciamento de Projetos</span>
+                                    <span className="text-xs text-gray-500">Adicione, edite ou remova projetos dinamicamente. Personalize cores e ícones para melhor organização.</span>
+                                </div>
+                            </div>
                             <div className="flex items-start gap-3">
                                 <div className="p-1.5 bg-blue-100 text-blue-600 rounded-md mt-0.5">
                                     <Filter size={14} />

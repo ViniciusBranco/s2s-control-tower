@@ -5,6 +5,7 @@ export interface Project {
     id: string;
     name: string;
     color: string;
+    icon: string;
 }
 
 export interface Task {
@@ -21,12 +22,12 @@ export interface Task {
 }
 
 export const PROJECTS: Project[] = [
-    { id: "tintas-marfim", name: "Tintas Marfim", color: "orange" },
-    { id: "openpower-back", name: "OpenPower Backend", color: "blue" },
-    { id: "openpower-front", name: "OpenPower Frontend", color: "sky" },
-    { id: "equihealth", name: "EquiHealth", color: "green" },
-    { id: "amae", name: "AMAE", color: "red" },
-    { id: "vita-ai", name: "Vita.AI", color: "purple" },
+    { id: "tintas-marfim", name: "Tintas Marfim", color: "orange", icon: "Bot" },
+    { id: "openpower-back", name: "OpenPower Backend", color: "blue", icon: "ShieldCheck" },
+    { id: "openpower-front", name: "OpenPower Frontend", color: "sky", icon: "Monitor" },
+    { id: "equihealth", name: "EquiHealth", color: "green", icon: "PawPrint" },
+    { id: "amae", name: "AMAE", color: "red", icon: "Building2" },
+    { id: "vita-ai", name: "Vita.AI", color: "purple", icon: "Brain" },
 ];
 
 export const COLUMN_LABELS: Record<Status, string> = {

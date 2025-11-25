@@ -1,9 +1,11 @@
 import { useState } from "react";
 import type { User } from "firebase/auth";
-import { LogOut, Plus, ShieldAlert, HelpCircle, Archive, Download, Upload } from "lucide-react";
-import { type Task, PROJECTS } from "../types";
+import { LogOut, Plus, ShieldAlert, HelpCircle, Archive, Download, Upload, Settings } from "lucide-react";
+import { type Task } from "../types";
 import { seedDatabase } from "../lib/seed";
 import { exportToJSON, importFromJSON } from "../lib/data-management";
+import { useProjects } from "../hooks/useProjects";
+import { ProjectManagerModal } from "./ProjectManagerModal";
 import { ProjectGuideModal } from "./ProjectGuideModal";
 import { ArchiveModal } from "./ArchiveModal";
 import s2sLogo from "../assets/s2slogo.png";
@@ -20,7 +22,10 @@ interface SidebarProps {
 export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, onToggleProject }: SidebarProps) {
     const [isGuideOpen, setIsGuideOpen] = useState(false);
     const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+    const [isProjectManagerOpen, setIsProjectManagerOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
+
+    const { projects } = useProjects();
 
     const calculateProgress = (projectId: string) => {
         const projectTasks = tasks.filter((t) => t.projectId === projectId && !t.isArchived);
@@ -30,16 +35,33 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
         return Math.round((done / total) * 100);
     };
 
+    const PROGRESS_COLORS: Record<string, string> = {
+        slate: 'bg-slate-500',
+        gray: 'bg-gray-500',
+        zinc: 'bg-zinc-500',
+        neutral: 'bg-neutral-500',
+        stone: 'bg-stone-500',
+        red: 'bg-red-500',
+        orange: 'bg-orange-500',
+        amber: 'bg-amber-500',
+        yellow: 'bg-yellow-500',
+        lime: 'bg-lime-500',
+        green: 'bg-green-500',
+        emerald: 'bg-emerald-500',
+        teal: 'bg-teal-500',
+        cyan: 'bg-cyan-500',
+        sky: 'bg-sky-500',
+        blue: 'bg-blue-500',
+        indigo: 'bg-indigo-500',
+        violet: 'bg-violet-500',
+        purple: 'bg-purple-500',
+        fuchsia: 'bg-fuchsia-500',
+        pink: 'bg-pink-500',
+        rose: 'bg-rose-500',
+    };
+
     const getProgressColor = (color: string) => {
-        switch (color) {
-            case "orange": return "bg-orange-500";
-            case "blue": return "bg-blue-500";
-            case "sky": return "bg-sky-500";
-            case "green": return "bg-green-500";
-            case "red": return "bg-red-500";
-            case "purple": return "bg-purple-500";
-            default: return "bg-gray-500";
-        }
+        return PROGRESS_COLORS[color] || 'bg-gray-500';
     };
 
     return (
@@ -58,13 +80,10 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
                         Story2Scale Kanban
                     </span>
                 </div>
-                <p className="text-xs text-gray-500 font-medium pl-1 mb-6">
-                    Visualização Unificada
-                </p>
 
                 <button
                     onClick={onNewTask}
-                    className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full mt-6 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow-md active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
                 >
                     <Plus size={18} />
                     Nova Tarefa
@@ -72,7 +91,7 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
 
                 {user && user.email === import.meta.env.VITE_ADMIN_EMAIL && (
                     <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                        <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
                             Admin Zone
                         </p>
                         <button
@@ -127,12 +146,21 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
 
             {/* Projects Progress */}
             <div className="flex-1 overflow-y-auto p-6">
-                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-6">
-                    Progresso Geral
-                </h3>
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+                        Projetos
+                    </h3>
+                    <button
+                        onClick={() => setIsProjectManagerOpen(true)}
+                        className="text-gray-400 hover:text-blue-600 transition-colors cursor-pointer"
+                        title="Gerenciar Projetos"
+                    >
+                        <Settings size={16} />
+                    </button>
+                </div>
 
                 <div className="space-y-4">
-                    {PROJECTS.map((project) => {
+                    {projects.map((project) => {
                         const progress = calculateProgress(project.id);
                         const isSelected = selectedProjects.includes(project.id);
 
@@ -227,6 +255,12 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
             <ProjectGuideModal
                 isOpen={isGuideOpen}
                 onClose={() => setIsGuideOpen(false)}
+            />
+
+            <ProjectManagerModal
+                isOpen={isProjectManagerOpen}
+                onClose={() => setIsProjectManagerOpen(false)}
+                projects={projects}
             />
 
             <ArchiveModal
