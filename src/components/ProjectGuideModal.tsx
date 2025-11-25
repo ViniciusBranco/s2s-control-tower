@@ -1,4 +1,4 @@
-import { X, Calendar, Clock, AlertCircle, LayoutGrid, Filter, MousePointerClick, ShieldCheck } from "lucide-react";
+import { X, Calendar, Clock, AlertCircle, LayoutGrid, Filter, MousePointerClick, ShieldCheck, Archive } from "lucide-react";
 import { PROJECT_COLORS, PROJECTS } from "../types";
 
 interface ProjectGuideModalProps {
@@ -105,6 +105,15 @@ export function ProjectGuideModal({ isOpen, onClose }: ProjectGuideModalProps) {
                                 <div>
                                     <span className="text-sm font-medium text-gray-900 block">Segurança & Auditoria</span>
                                     <span className="text-xs text-gray-500">Login seguro via Google. Apenas administradores podem resetar o banco de dados.</span>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <div className="p-1.5 bg-gray-100 text-gray-600 rounded-md mt-0.5">
+                                    <Archive size={14} />
+                                </div>
+                                <div>
+                                    <span className="text-sm font-medium text-gray-900 block">Arquivo & Exclusão</span>
+                                    <span className="text-xs text-gray-500">Tarefas deletadas são enviadas para o Arquivo. Lá elas podem ser restauradas ou excluídas permanentemente (apenas Admin).</span>
                                 </div>
                             </div>
                         </div>
