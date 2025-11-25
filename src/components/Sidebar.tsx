@@ -1,10 +1,11 @@
 import { useState } from "react";
 import type { User } from "firebase/auth";
-import { LogOut, LayoutGrid, Plus, ShieldAlert, HelpCircle, Archive } from "lucide-react";
+import { LogOut, Plus, ShieldAlert, HelpCircle, Archive } from "lucide-react";
 import { type Task, PROJECTS } from "../types";
 import { seedDatabase } from "../lib/seed";
 import { ProjectGuideModal } from "./ProjectGuideModal";
 import { ArchiveModal } from "./ArchiveModal";
+import s2sLogo from "../assets/s2slogo.png";
 
 interface SidebarProps {
     user: User;
@@ -18,6 +19,7 @@ interface SidebarProps {
 export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, onToggleProject }: SidebarProps) {
     const [isGuideOpen, setIsGuideOpen] = useState(false);
     const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     const calculateProgress = (projectId: string) => {
         const projectTasks = tasks.filter((t) => t.projectId === projectId && !t.isArchived);
@@ -44,11 +46,15 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
             {/* Header */}
             <div className="p-6 border-b border-gray-100">
                 <div className="flex items-center gap-3 mb-1">
-                    <div className="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-600/20">
-                        <LayoutGrid className="text-white" size={20} />
+                    <div className="w-10 h-10 shrink-0">
+                        <img
+                            src={s2sLogo}
+                            alt="Story2Scale Logo"
+                            className="w-full h-full shadow-lg shadow-blue-900/20 rounded-xl object-cover"
+                        />
                     </div>
                     <span className="font-bold text-gray-800 text-lg tracking-tight">
-                        Meus Projetos
+                        Story2Scale Kanban
                     </span>
                 </div>
                 <p className="text-xs text-gray-500 font-medium pl-1 mb-6">
@@ -144,11 +150,12 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
                 {/* User Profile */}
                 <div className="flex items-center justify-between pt-2 border-t border-gray-200/50">
                     <div className="flex items-center gap-3">
-                        {user.photoURL ? (
+                        {user.photoURL && !imageError ? (
                             <img
                                 src={user.photoURL}
                                 alt={user.displayName || "User"}
                                 className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
+                                onError={() => setImageError(true)}
                             />
                         ) : (
                             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border-2 border-white shadow-sm">
