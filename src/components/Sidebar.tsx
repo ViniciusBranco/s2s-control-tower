@@ -8,6 +8,7 @@ import { ProjectGuideModal } from "./ProjectGuideModal";
 import { ArchiveModal } from "./ArchiveModal";
 import { AdminToolsModal } from "./AdminToolsModal";
 import s2sLogo from "../assets/s2slogo.png";
+import { COLOR_HEX_MAP } from "../lib/constants";
 
 interface SidebarProps {
     user: User;
@@ -34,33 +35,6 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
         const done = projectTasks.filter((t) => t.status === "done").length;
         return Math.round((done / total) * 100);
     };
-
-    const PROGRESS_COLORS: Record<string, string> = {
-        slate: "bg-slate-500",
-        gray: "bg-gray-500",
-        zinc: "bg-zinc-500",
-        neutral: "bg-neutral-500",
-        stone: "bg-stone-500",
-        red: "bg-red-500",
-        orange: "bg-orange-500",
-        amber: "bg-amber-500",
-        yellow: "bg-yellow-500",
-        lime: "bg-lime-500",
-        green: "bg-green-500",
-        emerald: "bg-emerald-500",
-        teal: "bg-teal-500",
-        cyan: "bg-cyan-500",
-        sky: "bg-sky-500",
-        blue: "bg-blue-500",
-        indigo: "bg-indigo-500",
-        violet: "bg-violet-500",
-        purple: "bg-purple-500",
-        fuchsia: "bg-fuchsia-500",
-        pink: "bg-pink-500",
-        rose: "bg-rose-500",
-    };
-
-    const getProgressColor = (color: string) => PROGRESS_COLORS[color] || "bg-gray-500";
 
     return (
         <div className="w-72 bg-white border-r border-gray-200 flex flex-col h-full shrink-0">
@@ -107,6 +81,8 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
                     {projects.map((project) => {
                         const progress = calculateProgress(project.id);
                         const isSelected = selectedProjects.includes(project.id);
+                        const colorHex = COLOR_HEX_MAP[project.color] || "#6b7280";
+
                         return (
                             <div
                                 key={project.id}
@@ -118,7 +94,10 @@ export function Sidebar({ user, tasks, onSignOut, onNewTask, selectedProjects, o
                                     <span className="text-xs font-semibold text-gray-500">{progress}%</span>
                                 </div>
                                 <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                                    <div className={`h-full rounded-full transition-all duration-500 ${getProgressColor(project.color)}`} style={{ width: `${progress}%` }} />
+                                    <div
+                                        className="h-full rounded-full transition-all duration-500"
+                                        style={{ width: `${progress}%`, backgroundColor: colorHex }}
+                                    />
                                 </div>
                             </div>
                         );

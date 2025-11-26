@@ -1,4 +1,4 @@
-import { X, Download, Upload, Database, ShieldAlert } from "lucide-react";
+import { X, Download, Upload, ShieldAlert } from "lucide-react";
 import { exportToJSON, importFromJSON } from "../lib/data-management";
 import { seedDatabase } from "../lib/seed";
 import type { Task } from "../types";

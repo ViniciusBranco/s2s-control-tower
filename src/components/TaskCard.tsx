@@ -5,6 +5,7 @@ import { PRIORITY_COLORS } from "../types";
 import { Trash2, Edit2, Calendar, Clock, AlertCircle, MessageSquareText } from "lucide-react";
 import { useProjects } from "../hooks/useProjects";
 import { getIconByKey } from "../lib/icons";
+import { COLOR_HEX_MAP } from "../lib/constants";
 
 interface TaskCardProps {
     task: Task;
@@ -29,16 +30,14 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
         },
     });
 
+    const project = projects.find((p) => p.id === task.projectId);
+    const colorHex = project ? (COLOR_HEX_MAP[project.color] || "#6b7280") : "#6b7280";
+
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
-    };
-
-    const project = projects.find((p) => p.id === task.projectId);
-
-    const dynamicColorClass = project
-        ? `bg-${project.color}-100 text-${project.color}-800 border-${project.color}-200`
-        : "bg-gray-100 text-gray-800 border-gray-200";
+        '--card-theme': colorHex,
+    } as React.CSSProperties;
 
     const ProjectIcon = project ? getIconByKey(project.icon) : null;
 
@@ -76,7 +75,7 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
             className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow group cursor-grab active:cursor-grabbing"
         >
             <div className="flex justify-between items-start mb-2">
-                <span className={`flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full border ${dynamicColorClass}`}>
+                <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full border bg-[color-mix(in_srgb,var(--card-theme),white_90%)] text-[color-mix(in_srgb,var(--card-theme),black_40%)] border-[color-mix(in_srgb,var(--card-theme),white_60%)]">
                     {ProjectIcon && <ProjectIcon size={12} strokeWidth={2.5} />}
                     {project?.name || "Unknown Project"}
                 </span>

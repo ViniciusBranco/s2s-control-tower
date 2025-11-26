@@ -3,6 +3,7 @@ import { X, Plus, Trash2, Edit2, Bot, Code, Database, User, Building2, Brain, Sh
 import { collection, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import type { Project } from "../types";
+import { AVAILABLE_COLORS, COLOR_HEX_MAP } from "../lib/constants";
 
 interface ProjectManagerModalProps {
     isOpen: boolean;
@@ -14,12 +15,6 @@ const AVAILABLE_ICONS = {
     Bot, Code, Database, User, Building2, Brain, ShieldCheck, Monitor, PawPrint,
     Globe, Smartphone, Cloud, Server, Cpu, Activity, Zap, Layers, Box
 };
-
-const AVAILABLE_COLORS = [
-    "slate", "gray", "zinc", "neutral", "stone", "red", "orange", "amber", "yellow",
-    "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet",
-    "purple", "fuchsia", "pink", "rose"
-];
 
 export function ProjectManagerModal({ isOpen, onClose, projects }: ProjectManagerModalProps) {
     const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -114,13 +109,15 @@ export function ProjectManagerModal({ isOpen, onClose, projects }: ProjectManage
                                         <button
                                             key={color}
                                             onClick={() => setFormData({ ...formData, color })}
-                                            className={`w-8 h-8 rounded-full border-2 transition-all ${formData.color === color
+                                            className={`w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center ${formData.color === color
                                                 ? "border-gray-900 scale-110"
                                                 : "border-transparent hover:scale-105"
                                                 }`}
-                                            style={{ backgroundColor: `var(--color-${color}-500)` }}
                                         >
-                                            <div className={`w-full h-full rounded-full bg-${color}-500`} />
+                                            <div
+                                                className="w-full h-full rounded-full"
+                                                style={{ backgroundColor: COLOR_HEX_MAP[color] }}
+                                            />
                                         </button>
                                     ))}
                                 </div>
